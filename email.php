@@ -50,14 +50,35 @@ function smtpmailer($para, $de, $de_nome, $assunto, $corpo) {
 
 if(smtpmailer($EmailTo, GUSER, $Alias, $Assunto, $msg)){
 	$res = ['sucesso' => true , 'mensagem' => $error];
+	$success = true;
 }else{
 	$res = ['sucesso' => false , 'mensagem' => $error];
+	$success = false;
+}
+
+$hoje = date('Y-m-d H:i:s');
+
+
+try {
+	$pdo = new PDO('mysql:host=localhost;dbname=id16240844_thethester', 'id16240844_thethester_base', 'P@ralelepiped0');
+	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+  
+	$stmt = $pdo->prepare('INSERT INTO EMAIL_LOG (sucesso, mensagem, data, email_cliente, nome_cliente, mensagem_cliente) VALUES(:sucesso, :mensagem, :data, :email_cliente, :nome_cliente, :mensagem_cliente)');
+	$stmt->execute(array(
+	  ':sucesso' => $success,
+	  ':mensagem' => $error,
+	  ':data' => $hoje,
+	  ':email_cliente' => $EmailTo,
+	  ':nome_cliente' => $Nome,
+	  ':mensagem_cliente' => $Mensagem
+	));
+  
+	
+  }catch(PDOException $e){
+	echo $e;
 }
 
 header('Content-type: application/json'); 
-
-
-
 echo json_encode($res);
 
 ?>
