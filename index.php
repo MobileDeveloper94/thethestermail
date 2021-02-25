@@ -32,7 +32,7 @@
 	<hr>
 	
 	<label for="Key">Chave:</label>
-	<input type="text" name="Chave" size="100" />
+	<input type="text" name="Key" size="100" />
 	
 	
 

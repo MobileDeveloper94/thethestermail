@@ -8,23 +8,16 @@ $EmailTo		= $_POST["EmailTo"];	// Pega o valor do campo Email que vai receber
 $Mensagem		= $_POST["Mensagem"];	// Pega os valores do campo Mensagem
 $Assunto 		= $_POST["Assunto"];	//assunto do email
 $Alias			= $_POST["Alias"];		//alias do email, ex: The Thester
-$key			= $_POST["Chave"];
+$key			= $_POST["Key"];		//key em sha1 para liberar acesso à API
 
-if($key != "e19055b167dd976ae6a93174d3f3a709d5c43043"){
-	$key = sha1($key);
-}
-
-if($key != "e19055b167dd976ae6a93174d3f3a709d5c43043"){
-	echo "key inválida";
-	die();
-	
-}
 
 require_once("phpmailer/class.phpmailer.php");
 require_once("db/db.php");
 
-define('GUSER', 'paulo_sergio_duarte@hotmail.com');	// <-- Insira aqui o seu GMail
-define('GPWD', 'Paulsccp');		// <-- Insira aqui a senha do seu GMail
+if(!ValidaAPI($key)){
+	echo "Key inválida";
+	die();
+}
 
 $msg = "Voce recebeu uma mensagem:\n";
 $msg = $msg . "De: " . $Nome . "\n";  
@@ -41,8 +34,8 @@ function smtpmailer($para, $de, $de_nome, $assunto, $corpo) {
 	$mail->SMTPSecure = 'tls';	// SSL REQUERIDO pelo GMail
 	$mail->Host = 'smtp-mail.outlook.com';	// SMTP utilizado
 	$mail->Port = 587;  		// A porta 587 deverá estar aberta em seu servidor
-	$mail->Username = GUSER;
-	$mail->Password = GPWD;
+	$mail->Username = $_MAILUSER;
+	$mail->Password = $_MAILPWD;
 	$mail->SetFrom($de, $de_nome);
 	$mail->Subject = $assunto;
 	$mail->Body = $corpo;
@@ -56,19 +49,15 @@ function smtpmailer($para, $de, $de_nome, $assunto, $corpo) {
 	}
 }
 
-// Insira abaixo o email que irá receber a mensagem, o email que irá enviar (o mesmo da variável GUSER), 
-//o nome do email que envia a mensagem, o Assunto da mensagem e por último a variável com o corpo do email.
 
-if(smtpmailer($EmailTo, GUSER, $Alias, $Assunto, $msg)){
+
+if(smtpmailer($EmailTo, $_MAILUSER, $Alias, $Assunto, $msg)){
 	$res = ['sucesso' => true , 'mensagem' => $error];
 	$success = true;
 }else{
 	$res = ['sucesso' => false , 'mensagem' => $error];
 	$success = false;
 }
-
-$hoje = date('Y-m-d H:i:s');
-
 
 try {
 	$pdo = OpenDB();
@@ -79,7 +68,7 @@ try {
 		$stmt->execute(array(
 		':sucesso' => $success,
 		':mensagem' => $error,
-		':data' => $hoje,
+		':data' => date('Y-m-d H:i:s'),
 		':email_cliente' => $EmailTo,
 		':nome_cliente' => $Nome,
 		':mensagem_cliente' => $Mensagem
