@@ -14,8 +14,11 @@ $key			= $_POST["Key"];		//key em sha1 para liberar acesso à API
 require_once("phpmailer/class.phpmailer.php");
 require_once("db/db.php");
 
+global $MAILUSER, $MAILPWD;
+
 if(!ValidaAPI($key)){
-	echo "Key inválida";
+	header('Content-type: application/json'); 
+	echo json_encode(['sucesso' => false , 'mensagem' => 'Key inválida']);
 	die();
 }
 
@@ -27,6 +30,7 @@ $msg = $msg . "Mensagem: \n" . $Mensagem . "\n";
 
 function smtpmailer($para, $de, $de_nome, $assunto, $corpo) { 
 	global $error;
+	global $MAILUSER, $MAILPWD;
 	$mail = new PHPMailer();
 	$mail->IsSMTP();		// Ativar SMTP
 	$mail->SMTPDebug = 0;		// Debugar: 1 = erros e mensagens, 2 = mensagens apenas
@@ -34,8 +38,8 @@ function smtpmailer($para, $de, $de_nome, $assunto, $corpo) {
 	$mail->SMTPSecure = 'tls';	// SSL REQUERIDO pelo GMail
 	$mail->Host = 'smtp-mail.outlook.com';	// SMTP utilizado
 	$mail->Port = 587;  		// A porta 587 deverá estar aberta em seu servidor
-	$mail->Username = $_MAILUSER;
-	$mail->Password = $_MAILPWD;
+	$mail->Username = $MAILUSER;
+	$mail->Password = $MAILPWD;
 	$mail->SetFrom($de, $de_nome);
 	$mail->Subject = $assunto;
 	$mail->Body = $corpo;
@@ -51,7 +55,7 @@ function smtpmailer($para, $de, $de_nome, $assunto, $corpo) {
 
 
 
-if(smtpmailer($EmailTo, $_MAILUSER, $Alias, $Assunto, $msg)){
+if(smtpmailer($EmailTo, $MAILUSER, $Alias, $Assunto, $msg)){
 	$res = ['sucesso' => true , 'mensagem' => $error];
 	$success = true;
 }else{
