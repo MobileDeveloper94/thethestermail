@@ -29,9 +29,11 @@
 	<label for="Assunto">Assunto:</label>
 	<input type="text" name="Assunto" size="35" />
 	
+	<hr>
 	
+	<label for="Key">Chave:</label>
+	<input type="text" name="Chave" size="100" />
 	
-
 	
 
 	

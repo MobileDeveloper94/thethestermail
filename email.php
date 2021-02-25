@@ -2,15 +2,26 @@
 
 
 
-$Nome			= $_POST["Nome"];	// Pega o valor do campo Nome
-$EmailFrom		= $_POST["EmailFrom"]; // Pega o valor do campo Email do cliente
+$Nome			= $_POST["Nome"];		// Pega o valor do campo Nome
+$EmailFrom		= $_POST["EmailFrom"]; 	// Pega o valor do campo Email do cliente
 $EmailTo		= $_POST["EmailTo"];	// Pega o valor do campo Email que vai receber
 $Mensagem		= $_POST["Mensagem"];	// Pega os valores do campo Mensagem
 $Assunto 		= $_POST["Assunto"];	//assunto do email
 $Alias			= $_POST["Alias"];		//alias do email, ex: The Thester
+$key			= $_POST["Chave"];
 
+if($key != "e19055b167dd976ae6a93174d3f3a709d5c43043"){
+	$key = sha1($key);
+}
+
+if($key != "e19055b167dd976ae6a93174d3f3a709d5c43043"){
+	echo "key inválida";
+	die();
+	
+}
 
 require_once("phpmailer/class.phpmailer.php");
+require_once("db/db.php");
 
 define('GUSER', 'paulo_sergio_duarte@hotmail.com');	// <-- Insira aqui o seu GMail
 define('GPWD', 'Paulsccp');		// <-- Insira aqui a senha do seu GMail
@@ -60,21 +71,25 @@ $hoje = date('Y-m-d H:i:s');
 
 
 try {
-	$pdo = new PDO('mysql:host=localhost;dbname=id16240844_thethester', 'id16240844_thethester_base', 'P@ralelepiped0');
-	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+	$pdo = OpenDB();
   
-	$stmt = $pdo->prepare('INSERT INTO EMAIL_LOG (sucesso, mensagem, data, email_cliente, nome_cliente, mensagem_cliente) VALUES(:sucesso, :mensagem, :data, :email_cliente, :nome_cliente, :mensagem_cliente)');
-	$stmt->execute(array(
-	  ':sucesso' => $success,
-	  ':mensagem' => $error,
-	  ':data' => $hoje,
-	  ':email_cliente' => $EmailTo,
-	  ':nome_cliente' => $Nome,
-	  ':mensagem_cliente' => $Mensagem
-	));
-  
+	if($pdo){
+
+		$stmt = $pdo->prepare('INSERT INTO EMAIL_LOG (sucesso, mensagem, data, email_cliente, nome_cliente, mensagem_cliente) VALUES(:sucesso, :mensagem, :data, :email_cliente, :nome_cliente, :mensagem_cliente)');
+		$stmt->execute(array(
+		':sucesso' => $success,
+		':mensagem' => $error,
+		':data' => $hoje,
+		':email_cliente' => $EmailTo,
+		':nome_cliente' => $Nome,
+		':mensagem_cliente' => $Mensagem
+		));
 	
-  }catch(PDOException $e){
+		$pdo = null;
+	}
+	
+
+}catch(Exception $e){
 	echo $e;
 }
 
