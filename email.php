@@ -1,6 +1,10 @@
 <?php
 
-
+header('Content-type: application/json');
+header('Access-Control-Allow-Origin: https://hmlthethester.netlify.app');
+header('Access-Control-Allow-Origin: https://thethester.com.br');
+header('Access-Control-Allow-Methods: POST, GET');
+header('Access-Control-Allow-Headers: *');
 
 $Nome			= $_POST["Nome"];		// Pega o valor do campo Nome
 $EmailFrom		= $_POST["EmailFrom"]; 	// Pega o valor do campo Email do cliente
@@ -17,7 +21,8 @@ require_once("db/db.php");
 global $MAILUSER, $MAILPWD;
 
 if(!ValidaAPI($key)){
-	header('Content-type: application/json'); 
+	
+	
 	echo json_encode(['sucesso' => false , 'mensagem' => 'Key inválida']);
 	die();
 }
@@ -73,7 +78,7 @@ try {
 		':sucesso' => $success,
 		':mensagem' => $error,
 		':data' => date('Y-m-d H:i:s'),
-		':email_cliente' => $EmailTo,
+		':email_cliente' => $EmailFrom,
 		':nome_cliente' => $Nome,
 		':mensagem_cliente' => $Mensagem
 		));
@@ -86,7 +91,7 @@ try {
 	echo $e;
 }
 
-header('Content-type: application/json'); 
+
 echo json_encode($res);
 
 ?>
