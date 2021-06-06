@@ -13,7 +13,7 @@ $Mensagem		= $_POST["Mensagem"];	// Pega os valores do campo Mensagem
 $Assunto 		= $_POST["Assunto"];	//assunto do email
 $Alias			= $_POST["Alias"];		//alias do email, ex: The Thester
 $key			= $_POST["Key"];		//key em sha1 para liberar acesso à API
-
+$Anexo			= $_POST["Anexo"];
 
 require_once("phpmailer/class.phpmailer.php");
 require_once("db/db.php");
@@ -48,6 +48,10 @@ function smtpmailer($para, $de, $de_nome, $assunto, $corpo) {
 	$mail->SetFrom($de, $de_nome);
 	$mail->Subject = $assunto;
 	$mail->Body = $corpo;
+	if(isset($_POST["Anexo"])){
+		$mail->AddAttachment($Anexo);
+	}
+	
 	$mail->AddAddress($para);
 	if(!$mail->Send()) {
 		$error = 'Mail error: '.$mail->ErrorInfo; 
