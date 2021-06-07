@@ -1,8 +1,6 @@
 <?php
-
 header('Content-type: application/json');
-header('Access-Control-Allow-Origin: https://hmlthethester.netlify.app');
-header('Access-Control-Allow-Origin: https://thethester.com.br');
+header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
 header('Access-Control-Allow-Methods: POST, GET');
 header('Access-Control-Allow-Headers: *');
 
@@ -11,9 +9,8 @@ $EmailFrom		= $_POST["EmailFrom"]; 	// Pega o valor do campo Email do cliente
 $EmailTo		= $_POST["EmailTo"];	// Pega o valor do campo Email que vai receber
 $Mensagem		= $_POST["Mensagem"];	// Pega os valores do campo Mensagem
 $Assunto 		= $_POST["Assunto"];	//assunto do email
-$Alias			= $_POST["Alias"];		//alias do email, ex: The Thester
 $key			= $_POST["Key"];		//key em sha1 para liberar acesso à API
-$Anexo			= $_POST["Anexo"];
+
 
 require_once("phpmailer/class.phpmailer.php");
 require_once("db/db.php");
@@ -21,35 +18,27 @@ require_once("db/db.php");
 global $MAILUSER, $MAILPWD;
 
 if(!ValidaAPI($key)){
-	
-	
 	echo json_encode(['sucesso' => false , 'mensagem' => 'Key inválida']);
 	die();
 }
 
-$msg = "Voce recebeu uma mensagem:\n";
-$msg = $msg . "De: " . $Nome . "\n";  
-$msg = $msg . "Email: " . $EmailFrom . "\n";  
-$msg = $msg . "Mensagem: \n" . $Mensagem . "\n";  
-
-
-function smtpmailer($para, $de, $de_nome, $assunto, $corpo) { 
+function smtpmailer($para, $assunto, $corpo) { 
 	global $error;
 	global $MAILUSER, $MAILPWD;
 	$mail = new PHPMailer();
 	$mail->IsSMTP();		// Ativar SMTP
 	$mail->SMTPDebug = 0;		// Debugar: 1 = erros e mensagens, 2 = mensagens apenas
 	$mail->SMTPAuth = true;		// Autenticação ativada
-	$mail->SMTPSecure = 'tls';	// SSL REQUERIDO pelo GMail
+	$mail->SMTPSecure = 'tls';	// SSL REQUERIDO
 	$mail->Host = 'smtp-mail.outlook.com';	// SMTP utilizado
 	$mail->Port = 587;  		// A porta 587 deverá estar aberta em seu servidor
 	$mail->Username = $MAILUSER;
 	$mail->Password = $MAILPWD;
-	$mail->SetFrom($de, $de_nome);
+	$mail->SetFrom($MAILUSER, "The Thester Site");
 	$mail->Subject = $assunto;
-	$mail->Body = $corpo;
+	$mail->MsgHTML($corpo);
 	if(isset($_POST["Anexo"])){
-		$mail->AddAttachment($Anexo);
+		$mail->AddAttachment($_POST["Anexo"]);
 	}
 	
 	$mail->AddAddress($para);
@@ -64,7 +53,7 @@ function smtpmailer($para, $de, $de_nome, $assunto, $corpo) {
 
 
 
-if(smtpmailer($EmailTo, $MAILUSER, $Alias, $Assunto, $msg)){
+if(smtpmailer($EmailTo, $Assunto, $Mensagem)){
 	$res = ['sucesso' => true , 'mensagem' => $error];
 	$success = true;
 }else{
@@ -82,7 +71,7 @@ try {
 		':sucesso' => $success,
 		':mensagem' => $error,
 		':data' => date('Y-m-d H:i:s'),
-		':email_cliente' => $EmailFrom,
+		':email_cliente' => $EmailTo,
 		':nome_cliente' => $Nome,
 		':mensagem_cliente' => $Mensagem
 		));

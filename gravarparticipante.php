@@ -1,8 +1,7 @@
 <?php
 
 header('Content-type: application/json');
-header('Access-Control-Allow-Origin: https://hmlthethester.netlify.app');
-header('Access-Control-Allow-Origin: https://thethester.com.br');
+header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
 header('Access-Control-Allow-Methods: POST, GET');
 header('Access-Control-Allow-Headers: *');
 
@@ -41,16 +40,15 @@ try {
 
 		if($res = $pdo->lastInsertId()){
 			echo json_encode(['sucesso' => true , 'mensagem' => 'Participante incluído com sucesso']);
-			$pdo->commit();
+			$pdo = null;
 		}
 	
-		$pdo = null;
+		
 	}
 	
 
 }catch(Exception $e){
-	echo json_encode(['sucesso' => false , 'mensagem' => $e->GetMessage()]);
-	$pdo->rollback();
+	echo $e;
 }
 
 
