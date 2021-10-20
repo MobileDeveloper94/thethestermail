@@ -11,7 +11,7 @@
 function OpenDB(){
     global $CONNECTIONSTRING, $DBUSER, $DBPASSWORD;
     try{
-        $pdo = new PDO($CONNECTIONSTRING, $DBUSER, $DBPASSWORD);
+        $pdo = new PDO($CONNECTIONSTRING, $DBUSER, $DBPASSWORD, array(PDO::MYSQL_ATTR_FOUND_ROWS => true));
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         return $pdo;
