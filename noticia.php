@@ -120,8 +120,9 @@ function Listar($obj){
 	try {
 		$pdo = OpenDB();
 
-		$query = 'SELECT * FROM NOTICIA WHERE (fl_ativo = :fl_ativo OR 0 = :fl_ativo) AND (id = :id_noticia OR 0 = :id_noticia) ORDER BY dta_noticia DESC';		
-		
+		//$query = 'SELECT * FROM NOTICIA WHERE (fl_ativo = :fl_ativo OR 0 = :fl_ativo) AND (id = :id_noticia OR 0 = :id_noticia) ORDER BY dta_noticia DESC';		
+		$query = 'SELECT N.*, L.nome FROM NOTICIA N LEFT JOIN LOGIN L ON N.id_login = L.id WHERE (N.fl_ativo = :fl_ativo OR 0 = :fl_ativo) AND (N.id = :id_noticia OR 0 = :id_noticia) ORDER BY N.dta_noticia DESC';
+
 		if($pdo){
 			
 			$stmt = $pdo->prepare($query);
@@ -146,6 +147,7 @@ function Listar($obj){
 				$a->fl_ativo = $row['fl_ativo'];
 				$a->fl_redes = $row['fl_redes'];
 				$a->id_login = $row['id_login'];
+				$a->nome_login = $row['nome'];
 				array_push($res->dados, $a);
 				$res->total = $res->total + 1;
 			}
