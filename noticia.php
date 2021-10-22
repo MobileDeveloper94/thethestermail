@@ -28,6 +28,9 @@ try{
 		case "LISTAR":
 			Listar($obj);
 		  break;
+		  case "LISTARHOME":
+			ListarHome($obj);
+		  break;
 		
 		default:
 			echo json_encode(['sucesso' => false , 'mensagem' => 'Parametro action deve ser alimentado.']);
@@ -176,5 +179,46 @@ function Listar($obj){
 	}	
 }
 
+function ListarHome($obj){
+	try {
+		$pdo = OpenDB();
+
+		$query = 'SELECT N.*, L.nome FROM NOTICIA N LEFT JOIN LOGIN L ON N.id_login = L.id WHERE fl_home = 1 ORDER BY N.dta_noticia DESC';
+
+		if($pdo){
+			
+			$stmt = $pdo->prepare($query);
+			$stmt->execute();
+						
+			$res = new stdClass();
+			$res->dados = array();
+			$res->total = 0;
+			
+
+			while($row = $stmt->fetch()){
+				$a = new stdClass();
+				$a->id = $row['id'];
+				$a->titulo = $row['titulo'];
+				$a->texto = $row['texto'];
+				$a->imagem = $row['imagem'];
+				$a->dta_noticia = $row['dta_noticia'];
+				$a->fl_home = $row['fl_home'];
+				$a->fl_ativo = $row['fl_ativo'];
+				$a->fl_redes = $row['fl_redes'];
+				$a->id_login = $row['id_login'];
+				$a->nome_login = $row['nome'];
+				array_push($res->dados, $a);
+				$res->total = $res->total + 1;
+			}
+
+			$pdo = null;
+
+			echo json_encode(['sucesso' => true , 'dados' => $res]);
+		}
+
+	}catch(Exception $e){
+		echo $e;
+	}	
+}
 
 ?>
