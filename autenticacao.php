@@ -241,15 +241,23 @@ function Edit($obj){
 		
 		if($pdo){
 			
-			$stmt = $pdo->prepare('UPDATE LOGIN SET senha = :senha, nome = :nome, imagem = :imagem WHERE id = :id');
-			$stmt->execute(array(
+			if(strcmp($obj->senha,"") != 0){
+				$stmt = $pdo->prepare('UPDATE LOGIN SET senha = :senha, nome = :nome, imagem = :imagem WHERE id = :id');
+				$stmt->execute(array(
 				':senha' => sha1($obj->senha),
 				':nome' => $obj->nome, 
 				':imagem' => $obj->imagem, 
 				':id' => $obj->id
 				));
+			}else{
+				$stmt = $pdo->prepare('UPDATE LOGIN SET nome = :nome, imagem = :imagem WHERE id = :id');
+				$stmt->execute(array(
+				':nome' => $obj->nome, 
+				':imagem' => $obj->imagem, 
+				':id' => $obj->id
+				));
+			}
 			
-
 			if($stmt->rowCount() > 0){
 				$stmt = $pdo->prepare('INSERT INTO LOGIN_LOG (dt_Alteracao, id_login, observacao) VALUES (NOW(), :id, :mensagem)');
 				$stmt->execute(array(
