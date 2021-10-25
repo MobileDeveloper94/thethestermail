@@ -27,6 +27,12 @@ try{
 		  break;
 		case "CHECK":
 			Check($obj);
+			break;
+		case "ASSOCIACAO":
+			Associacao($obj);
+			break;
+		case "EDIT":
+			Edit($obj);
 		  break;
 		
 		default:
@@ -45,10 +51,12 @@ function Login($obj){
 		
 		if($pdo){
 			
-			$stmt = $pdo->prepare('SELECT * FROM LOGIN WHERE email = :email AND senha = :senha');
+			// $stmt = $pdo->prepare('SELECT * FROM LOGIN WHERE email = :email AND senha = :senha');
+			$stmt = $pdo->prepare('SELECT L.* FROM LOGIN L LEFT JOIN ASSOCIACAO A ON L.cod_assoc = A.cod WHERE L.fl_ativo = 1 AND A.fl_ativo = 1 AND L.email = :email AND L.senha = :senha AND A.alias = :alias');
 			$stmt->execute(array(
 			':email' => $obj->email, 
-            ':senha' => sha1($obj->senha)
+            ':senha' => sha1($obj->senha),
+			':alias' => strtolower($obj->alias)
 			));
 			
 			if($row = $stmt->fetch()){
@@ -191,5 +199,75 @@ function Check($obj){
 	}
 }
 
+function Associacao($obj){
+	try{
+		$pdo = OpenDB();
+		
+		if($pdo){
+			
+			$stmt = $pdo->prepare('SELECT * FROM ASSOCIACAO WHERE alias = :alias AND fl_ativo = 1');
+			$stmt->execute(array(
+				':alias' => strtolower($obj->alias)
+			));
+			
+			if($row = $stmt->fetch()){
+				$a = new stdClass();
+				$a->cod = $row['cod'];
+				$a->nome = $row['nome'];
+				$a->alias = $row['alias'];
+				$a->logo = $row['logo'];
+				$a->fl_ativo = $row['fl_ativo'];
+				$a->dta_inscricao = $row['dta_inscricao'];
+				$a->dta_vencimento = $row['dta_vencimento'];
+				
+				echo json_encode(['sucesso' => true , 'dados' => $a]);
+				
+            }else{
+				echo json_encode(['sucesso' => false , 'mensagem' => 'Associação inválida.']);
+				die();
+			}
+		}
+	
+	}catch(Exception $e){
+		echo json_encode(['sucesso' => false , 'mensagem' => $e->GetMessage()]);		
+	}
+}
+
+function Edit($obj){
+	try {
+		
+		$pdo = OpenDB();
+		$pdo->beginTransaction();
+		
+		if($pdo){
+			
+			$stmt = $pdo->prepare('UPDATE LOGIN SET senha = :senha, nome = :nome, imagem = :imagem WHERE id = :id');
+			$stmt->execute(array(
+				':senha' => sha1($obj->senha),
+				':nome' => $obj->nome, 
+				':imagem' => $obj->imagem, 
+				':id' => $obj->id
+				));
+			
+
+			if($stmt->rowCount() > 0){
+				$stmt = $pdo->prepare('INSERT INTO LOGIN_LOG (dt_Alteracao, id_login, observacao) VALUES (NOW(), :id, :mensagem)');
+				$stmt->execute(array(
+				':id' => $obj->id,
+				':mensagem' => 'UPDATE / ' . $obj->useragent
+				));
+				$pdo->commit();
+				echo json_encode(['sucesso' => true , 'mensagem' => 'Cadastro alterado com sucesso.', 'id' => $obj->id]);
+				
+			}else{
+				echo json_encode(['sucesso' => false , 'mensagem' => 'erro ao alterar cadastro']);
+				$pdo->rollBack();		
+			}
+		}
+	
+	}catch(Exception $e){
+		echo json_encode(['sucesso' => false , 'mensagem' => $e->GetMessage()]);		
+	}	
+}
 
 ?>
