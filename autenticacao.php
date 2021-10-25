@@ -131,7 +131,7 @@ function Check($obj){
 				
 				if($_SESSION['token_autenticacao'] = $obj->token){
 					
-					$stmt = $pdo->prepare("SELECT A.*, L.nome, L.imagem FROM AUTENTICACAO_AUX A LEFT JOIN LOGIN L ON L.id = A.id_login WHERE A.id_login = :id_login and A.token = :token AND NOW() < A.dta_expiracao");
+					$stmt = $pdo->prepare("SELECT A.*, L.nome, L.imagem, L.email FROM AUTENTICACAO_AUX A LEFT JOIN LOGIN L ON L.id = A.id_login WHERE A.id_login = :id_login and A.token = :token AND NOW() < A.dta_expiracao");
 					
 					$stmt->execute(array(
 					':id_login' => $_SESSION['id_login'],
@@ -153,7 +153,7 @@ function Check($obj){
 						':token' => $_SESSION['token_autenticacao']
 						));		
 						
-						echo json_encode(['sucesso' => true , 'mensagem' => 'Usuário autenticado com sucesso.', 'id' => $_SESSION['id_login'], 'token' => $_SESSION['token_autenticacao'], 'nome' => $row['nome'], 'imagem' => $row['imagem']]);
+						echo json_encode(['sucesso' => true , 'mensagem' => 'Usuário autenticado com sucesso.', 'id' => $_SESSION['id_login'], 'token' => $_SESSION['token_autenticacao'], 'nome' => $row['nome'], 'imagem' => $row['imagem'], 'email' => $row['email']]);
 						//echo json_encode(['sucesso' => true , 'mensagem' => 'Usuário autenticado com sucesso.', 'id' => $_SESSION['id_login'], 'token' => $_SESSION['token_autenticacao']]);
 					}else{
 						echo json_encode(['sucesso' => false , 'mensagem' => 'Usuário não autenticado']);
@@ -164,7 +164,7 @@ function Check($obj){
 					die();
 				}
 			}else{
-				$stmt = $pdo->prepare("SELECT A.*, L.nome, L.imagem FROM AUTENTICACAO_AUX A LEFT JOIN LOGIN L ON L.id = A.id_login WHERE A.token = :token AND NOW() < A.dta_expiracao");
+				$stmt = $pdo->prepare("SELECT A.*, L.nome, L.imagem, L.email FROM AUTENTICACAO_AUX A LEFT JOIN LOGIN L ON L.id = A.id_login WHERE A.token = :token AND NOW() < A.dta_expiracao");
 				$stmt->execute(array(
 				':token' => $obj->token
 				));
@@ -187,7 +187,7 @@ function Check($obj){
 					':token' => $_SESSION['token_autenticacao']
 					));
 					
-					echo json_encode(['sucesso' => true , 'mensagem' => 'Usuário autenticado com sucesso.', 'id' => $_SESSION['id_login'], 'token' => $_SESSION['token_autenticacao'], 'nome' => $row['nome'], 'imagem' => $row['imagem']]);
+					echo json_encode(['sucesso' => true , 'mensagem' => 'Usuário autenticado com sucesso.', 'id' => $_SESSION['id_login'], 'token' => $_SESSION['token_autenticacao'], 'nome' => $row['nome'], 'imagem' => $row['imagem'], 'email' => $row['email']]);
 				}else{
 					echo json_encode(['sucesso' => false , 'mensagem' => 'Usuário não autenticado']);
 					die();
