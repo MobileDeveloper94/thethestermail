@@ -48,11 +48,12 @@ function Incluir($obj){
 		
 		if($pdo){
 			
-			$stmt = $pdo->prepare('INSERT INTO NOTICIA (titulo, texto, imagem, dta_noticia, fl_home, fl_ativo, fl_redes, id_login) VALUES (:titulo, :texto, :imagem, NOW(), :fl_home, :fl_ativo, :fl_redes, :id_login)');
+			$stmt = $pdo->prepare('INSERT INTO NOTICIA (titulo, texto, imagem, link, dta_noticia, fl_home, fl_ativo, fl_redes, id_login) VALUES (:titulo, :texto, :imagem, NOW(), :fl_home, :fl_ativo, :fl_redes, :id_login)');
 			$stmt->execute(array(
 			':titulo' => $obj->titulo,
 			':texto' => $obj->texto, 
 			':imagem' => $obj->imagem, 
+			':link' => $obj->link, 
 			':fl_home' => $obj->fl_home, 
 			':fl_ativo' => $obj->fl_ativo, 
 			':fl_redes' => $obj->fl_redes, 
@@ -85,11 +86,12 @@ function Alterar($obj){
 		
 		if($pdo){
 			
-			$stmt = $pdo->prepare('UPDATE NOTICIA SET titulo = :titulo, texto = :texto, imagem = :imagem, fl_home = :fl_home, fl_ativo = :fl_ativo, fl_redes = :fl_redes, id_login = :id_login WHERE id = :id_noticia');
+			$stmt = $pdo->prepare('UPDATE NOTICIA SET titulo = :titulo, texto = :texto, imagem = :imagem, link = :link, fl_home = :fl_home, fl_ativo = :fl_ativo, fl_redes = :fl_redes, id_login = :id_login WHERE id = :id_noticia');
 			$stmt->execute(array(
 			':titulo' => $obj->titulo,
 			':texto' => $obj->texto, 
 			':imagem' => $obj->imagem, 
+			':link' => $obj->link, 
 			':fl_home' => $obj->fl_home, 
 			':fl_ativo' => $obj->fl_ativo, 
 			':fl_redes' => $obj->fl_redes, 
@@ -145,6 +147,7 @@ function Listar($obj){
 				$a->titulo = $row['titulo'];
 				$a->texto = $row['texto'];
 				$a->imagem = $row['imagem'];
+				$a->link = $row['link'];
 				$a->dta_noticia = $row['dta_noticia'];
 				$a->fl_home = $row['fl_home'];
 				$a->fl_ativo = $row['fl_ativo'];
@@ -201,6 +204,7 @@ function ListarHome($obj){
 				$a->titulo = $row['titulo'];
 				$a->texto = $row['texto'];
 				$a->imagem = $row['imagem'];
+				$a->link = $row['link'];
 				$a->dta_noticia = $row['dta_noticia'];
 				$a->fl_home = $row['fl_home'];
 				$a->fl_ativo = $row['fl_ativo'];
